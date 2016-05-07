@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/edt_intro_insert_name"
+        android:background="@drawable/rounded"
+        android:hint="please insert your favourite hobby"
+
+        android:layout_above="@+id/btn_intro_calculate"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:padding="5dp"
+        />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_intro_calculate"
+        android:background="@drawable/circle_arrow"
+        android:scaleType="fitXY"
+        android:layout_alignTop="@+id/tv_intro_button_title"
+        android:layout_alignBottom="@+id/tv_intro_button_title"
+        android:layout_alignRight="@+id/tv_intro_button_title"
+        android:layout_alignEnd="@+id/tv_intro_button_title"
+        android:layout_alignLeft="@+id/tv_intro_button_title"
+        android:layout_alignStart="@+id/tv_intro_button_title" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Find\nRelated\nMovie!"
+        android:textColor="@android:color/black"
+        android:id="@+id/tv_intro_button_title"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:padding="30dp"
+        />
+</RelativeLayout>
