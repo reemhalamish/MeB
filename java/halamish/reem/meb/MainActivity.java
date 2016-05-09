@@ -115,11 +115,11 @@ public class MainActivity extends FragmentActivity {
             Bundle intoFrag = new Bundle();
             intoFrag.putParcelableArrayList(MovieListFragment.MOVIES_SAVED_TAG, movieEntries);
             mListFrag.setArguments(intoFrag);
-            FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
-            trans.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-            trans.addToBackStack(null);
-            trans.replace(R.id.frm_fragment, mListFrag);
-            trans.commit();
+            Utils.addFragmentToBackStackWithFadeEffect(
+                    getSupportFragmentManager(),
+                    R.id.frm_fragment,
+                    mListFrag
+            );
         }
     }
 

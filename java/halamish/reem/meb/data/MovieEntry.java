@@ -52,4 +52,11 @@ public class MovieEntry implements Parcelable {
         }
     };
 
+    @Override
+    public boolean equals(Object o) {
+        if (o.getClass() != MovieEntry.class)
+            return false;
+        MovieEntry other = (MovieEntry) o;
+        return other.title.equals(title) && other.tt.equals(tt);
+    }
 }

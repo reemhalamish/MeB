@@ -123,4 +123,5 @@ public class IntroFragment extends Fragment {
         mBtnCalc.setAnimation(null);
         mTvButtonTitle.setAnimation(null);
     }
+
 }

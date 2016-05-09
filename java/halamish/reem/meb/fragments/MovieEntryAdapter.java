@@ -1,18 +1,29 @@
 package halamish.reem.meb.fragments;
 
-import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import halamish.reem.meb.Utils;
+import halamish.reem.meb.data.BitmapContainer;
 import halamish.reem.meb.data.MovieEntry;
 import halamish.reem.meb.R;
 
@@ -22,12 +33,21 @@ import halamish.reem.meb.R;
  * adapter for the MovieEntries
  */
 public class MovieEntryAdapter extends ArrayAdapter<MovieEntry> {
+    private static final String TAG = "MovieAdapter";
     List<MovieEntry> mEntries;
     LayoutInflater mInflater;
-    public MovieEntryAdapter(Context context, int resource, List<MovieEntry> objects) {
+    Map<View, MovieEntry> mCurActiveViews;
+    Map<MovieEntry, View> mCurActiveEntries;
+    FragmentActivity mActivity;
+
+
+    public MovieEntryAdapter(FragmentActivity context, int resource, List<MovieEntry> objects) {
         super(context, resource, objects);
         mEntries = objects;
         mInflater = LayoutInflater.from(getContext());
+        mCurActiveViews = new HashMap<>();
+        mCurActiveEntries = new HashMap<>();
+        mActivity = context;
     }
 
     @Override
@@ -56,15 +76,79 @@ public class MovieEntryAdapter extends ArrayAdapter<MovieEntry> {
         // take care of the stars
         if (position % 2 > 0) {
             tvTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.hyperlink1));
-//            view.findViewById(R.id.iv_rowmovie_poster_left).setVisibility(View.GONE);
-//            view.findViewById(R.id.iv_rowmovie_poster_right).setVisibility(View.VISIBLE);
-            // TODO delete here and at xml if not needed
         } else {
-//            view.findViewById(R.id.iv_rowmovie_poster_left).setVisibility(View.VISIBLE);
-//            view.findViewById(R.id.iv_rowmovie_poster_right).setVisibility(View.GONE);
             tvTitle.setTextColor(ContextCompat.getColor(getContext(), R.color.hyperlink2));
         }
 
+        // handle the poster
+        ImageView ivPoster = (ImageView) view.findViewById(R.id.iv_rowmovie_poster);
+        if (!BitmapContainer.getInstance().getMap().containsKey(entry)) { // still loading
+            ivPoster.setImageResource(android.R.drawable.alert_light_frame);
+            ivPoster.setOnClickListener(null);
+            ivPoster.setAlpha(1f);
+        }
+        Bitmap poster = BitmapContainer.getInstance().getMap().get(entry);
+        if (poster != null) {
+            ivPoster.setImageBitmap(poster);
+            setListenerOnPoster(ivPoster, entry);
+            ivPoster.setAlpha(1f);
+        } else {
+            ivPoster.setImageResource(R.drawable.no_img_avail);
+            ivPoster.setOnClickListener(null);
+            ivPoster.setAlpha(0.5f);
+        }
+
+
+        mCurActiveViews.put(view, entry);
+        mCurActiveEntries.put(entry, view);
         return view;
     }
+
+    public void updateView(final MovieEntry entry, final Bitmap bitmap) {
+        Log.d(TAG, "updating entry: " + entry.getTt());
+        View curView = mCurActiveEntries.get(entry);
+        if (curView == null || ! mCurActiveViews.get(curView).equals(entry))
+            return;
+
+        final ImageView ivPoster = ((ImageView) curView.findViewById(R.id.iv_rowmovie_poster));
+        final Animation anim_out = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_out);
+        final Animation anim_in  = AnimationUtils.loadAnimation(getContext(), android.R.anim.fade_in);
+        anim_out.setAnimationListener(new Animation.AnimationListener() {
+            public void onAnimationStart(Animation animation) {
+            }
+
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            public void onAnimationEnd(Animation animation) {
+                ivPoster.startAnimation(anim_in);
+                ivPoster.setImageBitmap(bitmap);
+                ivPoster.setAlpha(1f);
+                setListenerOnPoster(ivPoster, entry);
+            }
+        });
+        ivPoster.startAnimation(anim_out);
+
+
+    }
+
+    private void setListenerOnPoster(ImageView ivPoster, final MovieEntry entry) {
+        final Bitmap sentBitmap;
+        ivPoster.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ImageFullScreenFragment frag = new ImageFullScreenFragment();
+                Bundle args = new Bundle();
+                args.putParcelable(ImageFullScreenFragment.FULLSCREEN_IMAGE_TAG, entry);
+                frag.setArguments(args);
+
+                Utils.addFragmentToBackStackWithFadeEffect(
+                        mActivity.getSupportFragmentManager(),
+                        R.id.frm_fragment,
+                        frag
+                );
+            }
+        });
+    }
+
 }
